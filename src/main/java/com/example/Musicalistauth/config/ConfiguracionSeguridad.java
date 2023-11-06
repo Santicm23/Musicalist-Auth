@@ -34,14 +34,12 @@ public class ConfiguracionSeguridad {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.addFilterAfter(jwtFiltroAutorizacion, UsernamePasswordAuthenticationFilter.class).authorizeRequests(authorize -> authorize
-                .antMatchers(HttpMethod.POST, "/public/signup").permitAll()
-                .antMatchers(HttpMethod.POST, "/public/login").permitAll()
-                .anyRequest().authenticated()).csrf(csrf -> csrf.ignoringRequestMatchers(ignoreSpecificRequests()));
+        http.csrf().disable().addFilterAfter(jwtFiltroAutorizacion, UsernamePasswordAuthenticationFilter.class).authorizeRequests(authorize -> authorize
+                .antMatchers(HttpMethod.POST, "/public/**").permitAll()
+//                .antMatchers(HttpMethod.POST, "/info").permitAll()
+                .anyRequest().authenticated());//.csrf(csrf -> csrf.ignoringRequestMatchers(ignoreSpecificRequests()));
         return http.build();
     }
-
 
     private RequestMatcher ignoreSpecificRequests() {
         return new OrRequestMatcher(

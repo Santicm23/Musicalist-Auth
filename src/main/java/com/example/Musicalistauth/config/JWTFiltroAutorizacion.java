@@ -44,6 +44,7 @@ public class JWTFiltroAutorizacion extends OncePerRequestFilter {
             if (existeJWTToken(request)) {
                 Claims claims = validarToken(request);
                 if (claims.get("authorities") != null) {
+                    System.out.println(claims.get("authorities"));
                     String username = getUsername(request);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, userDetails, null);
@@ -65,11 +66,14 @@ public class JWTFiltroAutorizacion extends OncePerRequestFilter {
     @Generated
     private Claims validarToken(HttpServletRequest request) {
         String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
+        System.out.println("jwt: " + jwtToken);
+        System.out.println("claims: " + jwtTokenProvider.getClaims(jwtToken));
         return jwtTokenProvider.getClaims(jwtToken);
     }
     @Generated
     private String getUsername(HttpServletRequest request) {
         String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
+        System.out.println("Username: " + jwtTokenProvider.getUsername(jwtToken));
         return jwtTokenProvider.getUsername(jwtToken);
     }
     @Generated
