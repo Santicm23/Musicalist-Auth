@@ -20,7 +20,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ConfiguracionSeguridad {
 
-    private JWTFiltroAutorizacion jwtFiltroAutorizacion;
+    private JwtAuthenticationFilter jwtFiltroAutorizacion;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,17 +34,11 @@ public class ConfiguracionSeguridad {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().addFilterAfter(jwtFiltroAutorizacion, UsernamePasswordAuthenticationFilter.class).authorizeRequests(authorize -> authorize
+        http.csrf().disable()
+                .addFilterAfter(jwtFiltroAutorizacion, UsernamePasswordAuthenticationFilter.class).authorizeRequests(authorize -> authorize
                 .antMatchers(HttpMethod.POST, "/public/**").permitAll()
-//                .antMatchers(HttpMethod.POST, "/info").permitAll()
-                .anyRequest().authenticated());//.csrf(csrf -> csrf.ignoringRequestMatchers(ignoreSpecificRequests()));
-        return http.build();
-    }
+                .anyRequest().authenticated());
 
-    private RequestMatcher ignoreSpecificRequests() {
-        return new OrRequestMatcher(
-                new AntPathRequestMatcher("/public/login"),
-                new AntPathRequestMatcher("/public/signup")
-        );
+        return http.build();
     }
 }

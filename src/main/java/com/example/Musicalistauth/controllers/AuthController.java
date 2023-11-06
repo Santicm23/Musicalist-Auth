@@ -1,7 +1,7 @@
 package com.example.Musicalistauth.controllers;
 
-import com.example.Musicalistauth.config.JWTFiltroAutorizacion;
-import com.example.Musicalistauth.config.JWTProveedorToken;
+import com.example.Musicalistauth.config.JwtAuthenticationFilter;
+import com.example.Musicalistauth.config.JwtProviderImpl;
 import com.example.Musicalistauth.dtos.InfoUsuarioDTO;
 import com.example.Musicalistauth.dtos.LoginRequestDTO;
 import com.example.Musicalistauth.dtos.LoginResponseDTO;
@@ -25,8 +25,8 @@ public class AuthController {
     @PostMapping(value = "/public/signup", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:4200")
     public LoginResponseDTO signup(@RequestParam( required = false ) String correo, @RequestParam( required = false ) String contrasena) {
-        JWTProveedorToken jwtProveedorToken = new JWTProveedorToken();
-        return new LoginResponseDTO(jwtProveedorToken.generateToken(correo), JWTFiltroAutorizacion.PREFIX);
+        JwtProviderImpl jwtProveedorToken = new JwtProviderImpl();
+        return new LoginResponseDTO(jwtProveedorToken.generateToken(1L, false), JwtAuthenticationFilter.PREFIX);
     }
 
     @PostMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
