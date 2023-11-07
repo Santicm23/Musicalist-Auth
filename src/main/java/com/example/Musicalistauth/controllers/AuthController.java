@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 @RestController
 public class AuthController {
 
@@ -18,7 +21,7 @@ public class AuthController {
 
     @PostMapping(value = "/public/login", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:4200")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO loginDTO) {
+    public LoginResponseDTO login(@RequestBody LoginRequestDTO loginDTO) throws URISyntaxException, IOException, InterruptedException {
         return authService.getJWT(loginDTO);
     }
 
