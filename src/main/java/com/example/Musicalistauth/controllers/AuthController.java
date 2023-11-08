@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins = "http://localhost:8080")
+    @CrossOrigin(origins = {"http://localhost:4200", "http://localhost:8080"})
     public InfoUsuarioDTO getInfoUsuario(@RequestHeader(name="Authorization") String token) {
         return authService.getInfoUsuario(token);
     }
