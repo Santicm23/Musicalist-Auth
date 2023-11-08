@@ -6,14 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.example.Musicalistauth.dtos.InfoUsuarioDTO;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -54,12 +51,16 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
+    public Boolean extractAdmin(String token) {
+        return extractAuthorities(token).contains("ADMIN");
+    }
+
+    @Override
     public boolean isTokenValid(String token, Long uid) {
         final Long id = extractId(token);
         return (id.equals(uid)) && !isTokenExpired(token);
     }
 
-    @Override
     public String extractAuthorities(String token) {
         return extractAllClaims(token).get("authorities").toString();
     }

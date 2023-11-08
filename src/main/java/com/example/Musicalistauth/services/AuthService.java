@@ -6,57 +6,49 @@ import com.example.Musicalistauth.dtos.InfoUsuarioDTO;
 import com.example.Musicalistauth.dtos.LoginRequestDTO;
 import com.example.Musicalistauth.dtos.LoginResponseDTO;
 import com.example.Musicalistauth.dtos.UsuarioDTO;
-import com.google.gson.Gson;
+import com.example.Musicalistauth.exceptions.StandardRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 @Service
 public class AuthService {
 
+    @Autowired
+    UserService userService;
+
     public AuthService() {}
 
-    public LoginResponseDTO getJWT(LoginRequestDTO loginRequestDTO) throws URISyntaxException, IOException, InterruptedException {
-        JwtProviderImpl jwtProveedorToken = new JwtProviderImpl();
-        Gson gson = new Gson();
-        String jsonRequest = gson.toJson(loginRequestDTO);
+    public LoginResponseDTO getJWT(LoginRequestDTO loginRequestDTO) throws URISyntaxException, IOException, InterruptedException, StandardRequestException {
+        JwtProviderImpl jwtProvider = new JwtProviderImpl();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI("http://localhost:8080/login"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
-                .build();
+        InfoUsuarioDTO infoUsuarioDTO = userService.getInfoUsuario(loginRequestDTO);
 
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            return new LoginResponseDTO(response.body(), JwtAuthenticationFilter.PREFIX);
-        } else {
-            throw new RuntimeException("Error al iniciar sesión");
-        }
-
-        //return new LoginResponseDTO(jwtProveedorToken.generateToken(1L, false), JwtAuthenticationFilter.PREFIX);
+        return new LoginResponseDTO(
+                jwtProvider.generateToken(infoUsuarioDTO.getId(), infoUsuarioDTO.getAdmin()),
+                JwtAuthenticationFilter.PREFIX);
     }
 
-    public LoginResponseDTO createUsuario(UsuarioDTO usuarioDTO) {
-        JwtProviderImpl jwtProveedorToken = new JwtProviderImpl();
-        return new LoginResponseDTO(jwtProveedorToken.generateToken(1L, false), JwtAuthenticationFilter.PREFIX);
+    public LoginResponseDTO createUsuario(UsuarioDTO usuarioDTO) throws StandardRequestException, IOException, InterruptedException, URISyntaxException {
+        String correo = usuarioDTO.getCorreo();
+        String contrasena = usuarioDTO.getContrasena();
+
+        userService.createUsuario(usuarioDTO);
+
+        LoginRequestDTO loginRequestDTO = new LoginRequestDTO(correo, contrasena);
+        return getJWT(loginRequestDTO);
     }
 
     public InfoUsuarioDTO getInfoUsuario(String token) {
-        JwtProviderImpl jwtProveedorToken = new JwtProviderImpl();
+        JwtProviderImpl jwtProvider = new JwtProviderImpl();
 
         token = token.replace(JwtAuthenticationFilter.PREFIX, "");
 
-        jwtProveedorToken.extractId(token);
-        return null;
+        Long id = jwtProvider.extractId(token);
+        Boolean admin = jwtProvider.extractAdmin(token);
+
+        return new InfoUsuarioDTO(id, admin);
     }
-
-
 }

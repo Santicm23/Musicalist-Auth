@@ -43,7 +43,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwt(request);
             if (jwtProvider.isTokenValid(jwt, jwtProvider.extractId(jwt))) {
                 if (jwtProvider.extractAuthorities(jwt) != null) {
-                    System.out.println(jwtProvider.extractAuthorities(jwt));
                     Long id = jwtProvider.extractId(jwt);
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(id, null, null);
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -56,8 +55,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
             chain.doFilter(request, response);
-        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        } catch (ExpiredJwtException e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }
     }
 
