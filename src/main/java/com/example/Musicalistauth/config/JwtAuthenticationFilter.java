@@ -1,13 +1,18 @@
 package com.example.Musicalistauth.config;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Calendar;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.example.Musicalistauth.exceptions.RequestErrorMessage;
+import com.google.gson.Gson;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -56,9 +61,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             chain.doFilter(request, response);
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            RequestErrorMessage message = new RequestErrorMessage("Token inválido", Calendar.getInstance().getTime(), HttpStatus.FORBIDDEN);
+            sendCustomError(response, message);
         } catch (ExpiredJwtException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            RequestErrorMessage message = new RequestErrorMessage("Token expirado", Calendar.getInstance().getTime(), HttpStatus.UNAUTHORIZED);
+            sendCustomError(response, message);
         }
     }
 
@@ -74,5 +81,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return authHeader.replace(PREFIX, "");
         }
         throw new MalformedJwtException("No existe el token");
+    }
+
+    @Generated
+    private void sendCustomError(HttpServletResponse response, RequestErrorMessage message) throws IOException {
+        Gson gson = new Gson();
+        String messageString = gson.toJson(message);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+        PrintWriter out = response.getWriter();
+        out.print(messageString);
+        out.flush();
     }
 }
