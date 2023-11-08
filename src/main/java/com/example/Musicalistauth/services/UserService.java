@@ -25,7 +25,7 @@ public class UserService {
         String jsonRequest = gson.toJson(loginRequestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI("http://localhost:8080/login"))
+                .uri(new URI("http://localhost:8080/public/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                 .build();
@@ -46,7 +46,7 @@ public class UserService {
         String jsonRequest = gson.toJson(usuarioDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/usuario"))
+                .uri(URI.create("http://localhost:8080/public/signup"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                 .build();
