@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping(value = "/reniew", produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:4200")
-    public LoginResponseDTO reniewJWT(@RequestHeader(name="Authorization") String token) throws URISyntaxException, IOException, InterruptedException, StandardRequestException {
+    public LoginResponseDTO reniewJWT(@RequestHeader(name="Authorization") String token) {
         return authService.reniewJWT(token);
     }
 
