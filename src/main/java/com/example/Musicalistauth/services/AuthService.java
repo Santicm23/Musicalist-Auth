@@ -51,4 +51,17 @@ public class AuthService {
 
         return new InfoUsuarioDTO(id, admin);
     }
+
+    public LoginResponseDTO reniewJWT(String token) {
+        JwtProviderImpl jwtProvider = new JwtProviderImpl();
+
+        token = token.replace(JwtAuthenticationFilter.PREFIX, "");
+
+        Long id = jwtProvider.extractId(token);
+        Boolean admin = jwtProvider.extractAdmin(token);
+
+        return new LoginResponseDTO(
+                jwtProvider.generateToken(id, admin),
+                JwtAuthenticationFilter.PREFIX);
+    }
 }
